@@ -22,7 +22,7 @@ async function fetchQuotesFromServer() {
 }
 
 // Sync data from server periodically and resolve conflicts
-async function syncDataFromServer() {
+async function syncQuotes() {
     const serverQuotes = await fetchQuotesFromServer();
 
     if (!serverQuotes) return;
@@ -46,7 +46,7 @@ async function syncDataFromServer() {
 }
 
 // Periodically check and sync data every 10 minutes (600000 ms)
-setInterval(syncDataFromServer, 600000); // This simulates periodic server syncing
+setInterval(syncQuotes, 600000); // This simulates periodic server syncing
 
 // Sync the categories with the localStorage
 async function syncCategories() {
@@ -192,5 +192,5 @@ function populateCategories() {
 document.addEventListener('DOMContentLoaded', () => {
     populateCategories();
     showRandomQuote();
-    syncDataFromServer(); // Initial sync with the server
+    syncQuotes(); // Initial sync with the server
 });
