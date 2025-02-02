@@ -1,6 +1,7 @@
 // Initialize quotes array and categories
 let quotes = JSON.parse(localStorage.getItem('quotes')) || [];
 let categories = JSON.parse(localStorage.getItem('categories')) || [];
+let selectedCategory = localStorage.getItem('lastSelectedCategory') || 'all'; // Default to 'all'
 
 // Populate categories dynamically in the category filter
 function populateCategories() {
@@ -17,9 +18,8 @@ function populateCategories() {
         categoryFilter.appendChild(option);
     });
 
-    // Load last selected category from local storage
-    const lastSelectedCategory = localStorage.getItem('lastSelectedCategory') || 'all';
-    categoryFilter.value = lastSelectedCategory;
+    // Set the dropdown to the last selected category
+    categoryFilter.value = selectedCategory;
 }
 
 // Show random quote from the quotes array
@@ -61,17 +61,17 @@ function addQuote() {
 
 // Filter quotes based on the selected category
 function filterQuotes() {
-    const categoryFilter = document.getElementById('categoryFilter').value;
-    
+    selectedCategory = document.getElementById('categoryFilter').value;
+
     // Save the selected category to local storage for future sessions
-    localStorage.setItem('lastSelectedCategory', categoryFilter);
+    localStorage.setItem('lastSelectedCategory', selectedCategory);
 
     // Use map to filter the quotes based on category
     let filteredQuotes;
-    if (categoryFilter === 'all') {
+    if (selectedCategory === 'all') {
         filteredQuotes = quotes;
     } else {
-        filteredQuotes = quotes.filter(quote => quote.category === categoryFilter);
+        filteredQuotes = quotes.filter(quote => quote.category === selectedCategory);
     }
 
     displayQuotes(filteredQuotes);
