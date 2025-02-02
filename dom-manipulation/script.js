@@ -4,49 +4,52 @@ let categories = JSON.parse(localStorage.getItem('categories')) || [];
 let selectedCategory = localStorage.getItem('lastSelectedCategory') || 'all';
 
 // Function to simulate fetching quotes from the server (mock API)
-function fetchQuotesFromServer() {
-    return fetch('https://jsonplaceholder.typicode.com/posts') // Simulating fetching posts as quotes
-        .then(response => response.json())
-        .then(data => {
-            // Simulate structure of server data to match local data
-            const serverQuotes = data.map(post => ({
-                text: post.body,
-                category: 'General' // Assuming all quotes fetched are categorized as 'General'
-            }));
-            return serverQuotes;
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
+async function fetchQuotesFromServer() {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts'); // Simulating fetching posts as quotes
+        const data = await response.json();
+        
+        // Simulate structure of server data to match local data
+        const serverQuotes = data.map(post => ({
+            text: post.body,
+            category: 'General' // Assuming all quotes fetched are categorized as 'General'
+        }));
+
+        return serverQuotes;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
 }
 
 // Sync data from server periodically and resolve conflicts
-function syncDataFromServer() {
-    fetchQuotesFromServer().then(serverQuotes => {
-        // Check if server data is different from local data
-        if (serverQuotes.length !== quotes.length) {
-            // Merge server data into local data (simple conflict resolution - server data takes precedence)
-            quotes = serverQuotes;
+async function syncDataFromServer() {
+    const serverQuotes = await fetchQuotesFromServer();
 
-            // Update local storage with server data
-            localStorage.setItem('quotes', JSON.stringify(quotes));
+    if (!serverQuotes) return;
 
-            // Notify user of update
-            alert('Quotes have been updated from the server.');
-        } else {
-            console.log('No new data from the server.');
-        }
+    // Check if server data is different from local data
+    if (serverQuotes.length !== quotes.length) {
+        // Merge server data into local data (simple conflict resolution - server data takes precedence)
+        quotes = serverQuotes;
 
-        // Sync categories and ensure consistency
-        syncCategories();
-    });
+        // Update local storage with server data
+        localStorage.setItem('quotes', JSON.stringify(quotes));
+
+        // Notify user of update
+        alert('Quotes have been updated from the server.');
+    } else {
+        console.log('No new data from the server.');
+    }
+
+    // Sync categories and ensure consistency
+    await syncCategories();
 }
 
 // Periodically check and sync data every 10 minutes (600000 ms)
 setInterval(syncDataFromServer, 600000); // This simulates periodic server syncing
 
 // Sync the categories with the localStorage
-function syncCategories() {
+async function syncCategories() {
     const serverCategories = quotes.map(quote => quote.category);
     const uniqueCategories = [...new Set(serverCategories)];
 
@@ -54,7 +57,9 @@ function syncCategories() {
     if (uniqueCategories.length > categories.length) {
         categories = uniqueCategories;
         localStorage.setItem('categories', JSON.stringify(categories));
-        populateCategories(); // Re-populate categories dropdown
+
+        // Re-populate categories dropdown
+        populateCategories();
     }
 }
 
@@ -66,7 +71,7 @@ function showRandomQuote() {
 }
 
 // Add a new quote to the quotes array
-function addQuote() {
+async function addQuote() {
     const quoteText = document.getElementById('quoteText').value;
     const quoteCategory = document.getElementById('quoteCategory').value;
 
@@ -77,7 +82,7 @@ function addQuote() {
         // If the category is new, add it to the categories array
         if (!categories.includes(quoteCategory)) {
             categories.push(quoteCategory);
-            updateCategoriesInStorage();
+            await updateCategoriesInStorage(); // Wait for categories to be updated
         }
 
         // Update local storage with new quotes
@@ -130,7 +135,7 @@ function displayQuotes(filteredQuotes) {
 }
 
 // Update categories in local storage and DOM
-function updateCategoriesInStorage() {
+async function updateCategoriesInStorage() {
     localStorage.setItem('categories', JSON.stringify(categories));
     populateCategories();
 }
