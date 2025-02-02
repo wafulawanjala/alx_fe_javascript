@@ -193,4 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     populateCategories();
     showRandomQuote();
     syncQuotes(); // Initial sync with the server
+
+    // Set up periodic syncing every 10 minutes (600000 milliseconds)
+    setInterval(syncQuotes, 600000);  // Fetch and sync quotes every 10 minutes
 });
