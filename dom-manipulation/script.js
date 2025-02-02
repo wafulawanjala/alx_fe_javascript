@@ -6,14 +6,17 @@ let categories = JSON.parse(localStorage.getItem('categories')) || [];
 function populateCategories() {
     const categoryFilter = document.getElementById('categoryFilter');
     categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+
+    // Use map to get a list of unique categories
+    const uniqueCategories = [...new Set(categories)];
     
-    categories.forEach(category => {
+    uniqueCategories.map(category => {
         const option = document.createElement('option');
         option.value = category;
         option.textContent = category;
         categoryFilter.appendChild(option);
     });
-    
+
     // Load last selected category from local storage
     const lastSelectedCategory = localStorage.getItem('lastSelectedCategory') || 'all';
     categoryFilter.value = lastSelectedCategory;
@@ -63,7 +66,7 @@ function filterQuotes() {
     // Save the selected category to local storage for future sessions
     localStorage.setItem('lastSelectedCategory', categoryFilter);
 
-    // Filter quotes based on the selected category
+    // Use map to filter the quotes based on category
     let filteredQuotes;
     if (categoryFilter === 'all') {
         filteredQuotes = quotes;
@@ -80,7 +83,7 @@ function displayQuotes(filteredQuotes) {
     quoteDisplay.innerHTML = '';
     
     if (filteredQuotes.length > 0) {
-        filteredQuotes.forEach(quote => {
+        filteredQuotes.map(quote => {
             const quoteElement = document.createElement('p');
             quoteElement.textContent = `"${quote.text}" — ${quote.category}`;
             quoteDisplay.appendChild(quoteElement);
