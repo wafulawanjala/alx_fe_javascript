@@ -88,6 +88,9 @@ async function addQuote() {
         // Update local storage with new quotes
         localStorage.setItem('quotes', JSON.stringify(quotes));
 
+        // Send the new quote to the server (mock API)
+        await postQuoteToServer(newQuote);
+
         // Clear input fields
         document.getElementById('quoteText').value = '';
         document.getElementById('quoteCategory').value = '';
@@ -97,6 +100,32 @@ async function addQuote() {
 
         // Show the most recent quote
         showRandomQuote();
+    }
+}
+
+// Function to post the new quote to the server
+async function postQuoteToServer(newQuote) {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                title: 'New Quote', // For simulation, using title and body for the quote structure
+                body: newQuote.text,
+                category: newQuote.category,
+            }),
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Quote successfully posted to server:', result);
+        } else {
+            console.log('Failed to post quote to server:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error posting quote to server:', error);
     }
 }
 
