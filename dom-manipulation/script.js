@@ -1,25 +1,61 @@
-// Initialize quotes array and categories
+// Simulating the local data
 let quotes = JSON.parse(localStorage.getItem('quotes')) || [];
 let categories = JSON.parse(localStorage.getItem('categories')) || [];
-let selectedCategory = localStorage.getItem('lastSelectedCategory') || 'all'; // Default to 'all'
+let selectedCategory = localStorage.getItem('lastSelectedCategory') || 'all';
 
-// Populate categories dynamically in the category filter
-function populateCategories() {
-    const categoryFilter = document.getElementById('categoryFilter');
-    categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+// Function to simulate fetching data from the server (mock API)
+function fetchServerData() {
+    return fetch('https://jsonplaceholder.typicode.com/posts') // Simulating fetching posts as quotes
+        .then(response => response.json())
+        .then(data => {
+            // Simulate structure of server data to match local data
+            const serverQuotes = data.map(post => ({
+                text: post.body,
+                category: 'General' // Assuming all quotes fetched are categorized as 'General'
+            }));
+            return serverQuotes;
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+}
 
-    // Use map to get a list of unique categories
-    const uniqueCategories = [...new Set(categories)];
-    
-    uniqueCategories.map(category => {
-        const option = document.createElement('option');
-        option.value = category;
-        option.textContent = category;
-        categoryFilter.appendChild(option);
+// Sync data from server periodically and resolve conflicts
+function syncDataFromServer() {
+    fetchServerData().then(serverQuotes => {
+        // Check if server data is different from local data
+        if (serverQuotes.length !== quotes.length) {
+            // Merge server data into local data (simple conflict resolution - server data takes precedence)
+            quotes = serverQuotes;
+
+            // Update local storage with server data
+            localStorage.setItem('quotes', JSON.stringify(quotes));
+
+            // Notify user of update
+            alert('Quotes have been updated from the server.');
+        } else {
+            console.log('No new data from the server.');
+        }
+
+        // Sync categories and ensure consistency
+        syncCategories();
     });
+}
 
-    // Set the dropdown to the last selected category
-    categoryFilter.value = selectedCategory;
+// Periodically check and sync data every 10 minutes (600000 ms)
+setInterval(syncDataFromServer, 600000); // This simulates periodic server syncing
+
+// Sync the categories with the localStorage
+function syncCategories() {
+    const serverCategories = quotes.map(quote => quote.category);
+    const uniqueCategories = [...new Set(serverCategories)];
+
+    // If there are new categories, update the local storage
+    if (uniqueCategories.length > categories.length) {
+        categories = uniqueCategories;
+        localStorage.setItem('categories', JSON.stringify(categories));
+        populateCategories(); // Re-populate categories dropdown
+    }
 }
 
 // Show random quote from the quotes array
@@ -37,7 +73,7 @@ function addQuote() {
     if (quoteText && quoteCategory) {
         const newQuote = { text: quoteText, category: quoteCategory };
         quotes.push(newQuote);
-        
+
         // If the category is new, add it to the categories array
         if (!categories.includes(quoteCategory)) {
             categories.push(quoteCategory);
@@ -46,7 +82,7 @@ function addQuote() {
 
         // Update local storage with new quotes
         localStorage.setItem('quotes', JSON.stringify(quotes));
-        
+
         // Clear input fields
         document.getElementById('quoteText').value = '';
         document.getElementById('quoteCategory').value = '';
@@ -81,7 +117,7 @@ function filterQuotes() {
 function displayQuotes(filteredQuotes) {
     const quoteDisplay = document.getElementById('quoteDisplay');
     quoteDisplay.innerHTML = '';
-    
+
     if (filteredQuotes.length > 0) {
         filteredQuotes.map(quote => {
             const quoteElement = document.createElement('p');
@@ -99,8 +135,28 @@ function updateCategoriesInStorage() {
     populateCategories();
 }
 
+// Populate categories dynamically in the category filter
+function populateCategories() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+
+    // Use map to get a list of unique categories
+    const uniqueCategories = [...new Set(categories)];
+
+    uniqueCategories.map(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categoryFilter.appendChild(option);
+    });
+
+    // Set the dropdown to the last selected category
+    categoryFilter.value = selectedCategory;
+}
+
 // Initialize and load quotes and categories when the page is loaded
 document.addEventListener('DOMContentLoaded', () => {
     populateCategories();
     showRandomQuote();
+    syncDataFromServer(); // Initial sync with the server
 });
