@@ -3,8 +3,8 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [];
 let categories = JSON.parse(localStorage.getItem('categories')) || [];
 let selectedCategory = localStorage.getItem('lastSelectedCategory') || 'all';
 
-// Function to simulate fetching data from the server (mock API)
-function fetchServerData() {
+// Function to simulate fetching quotes from the server (mock API)
+function fetchQuotesFromServer() {
     return fetch('https://jsonplaceholder.typicode.com/posts') // Simulating fetching posts as quotes
         .then(response => response.json())
         .then(data => {
@@ -22,7 +22,7 @@ function fetchServerData() {
 
 // Sync data from server periodically and resolve conflicts
 function syncDataFromServer() {
-    fetchServerData().then(serverQuotes => {
+    fetchQuotesFromServer().then(serverQuotes => {
         // Check if server data is different from local data
         if (serverQuotes.length !== quotes.length) {
             // Merge server data into local data (simple conflict resolution - server data takes precedence)
