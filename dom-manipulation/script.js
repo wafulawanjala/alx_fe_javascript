@@ -36,13 +36,25 @@ async function syncQuotes() {
         localStorage.setItem('quotes', JSON.stringify(quotes));
 
         // Notify user of update
-        alert('Quotes have been updated from the server.');
+        showSyncNotification('Quotes synced with server!');
     } else {
         console.log('No new data from the server.');
     }
 
     // Sync categories and ensure consistency
     await syncCategories();
+}
+
+// Function to show sync notification
+function showSyncNotification(message) {
+    const notificationDiv = document.createElement('div');
+    notificationDiv.className = 'sync-notification';
+    notificationDiv.textContent = message;
+    document.body.appendChild(notificationDiv);
+
+    setTimeout(() => {
+        notificationDiv.remove();
+    }, 3000); // Remove the notification after 3 seconds
 }
 
 // Periodically check and sync data every 10 minutes (600000 ms)
