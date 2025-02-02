@@ -35,8 +35,8 @@ async function syncQuotes() {
         // Update local storage with server data
         localStorage.setItem('quotes', JSON.stringify(quotes));
 
-        // Notify user of update
-        showSyncNotification('Quotes synced with server!');
+        // Notify user of update via alert
+        alert('Quotes synced with server!');
     } else {
         console.log('No new data from the server.');
     }
@@ -44,21 +44,6 @@ async function syncQuotes() {
     // Sync categories and ensure consistency
     await syncCategories();
 }
-
-// Function to show sync notification
-function showSyncNotification(message) {
-    const notificationDiv = document.createElement('div');
-    notificationDiv.className = 'sync-notification';
-    notificationDiv.textContent = message;
-    document.body.appendChild(notificationDiv);
-
-    setTimeout(() => {
-        notificationDiv.remove();
-    }, 3000); // Remove the notification after 3 seconds
-}
-
-// Periodically check and sync data every 10 minutes (600000 ms)
-setInterval(syncQuotes, 600000); // This simulates periodic server syncing
 
 // Sync the categories with the localStorage
 async function syncCategories() {
@@ -72,6 +57,9 @@ async function syncCategories() {
 
         // Re-populate categories dropdown
         populateCategories();
+
+        // Notify user of new categories via alert
+        alert('New categories synced with server!');
     }
 }
 
